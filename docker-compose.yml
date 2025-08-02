@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  ytgen:
+    container_name: youtube-session-generator
+    image: quay.io/invidious/youtube-trusted-session-generator:webserver
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/token"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - musicbot_network
+
+  bot:
+    container_name: jmusicbot
+    build: .
+    volumes:
+      - .:/app
+    depends_on:
+      ytgen:
+        condition: service_healthy
+    networks:
+      - musicbot_network
+
+networks:
+  musicbot_network:
+    driver: bridge
