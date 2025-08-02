@@ -1,22 +1,18 @@
 #!/bin/bash
 
+# Update & Install package
 apt update
 apt install -y curl jq
 
-LATEST_URL=$(curl -sL https://api.github.com/repos/SeVile/MusicBot/releases/latest | grep -o '"browser_download_url": ".*JMusicBot.*"' | sed 's/"browser_download_url": "//;s/"//g')
+# Get Token from Youtube Token Generator
+YTGEN_URL="http://ytgen:8080"
+while ! curl -s $YTGEN_URL > /dev/null; do
+    sleep 1
+    echo "Youtube Token Generator no response, wait for 3 sec"
+    sleep 2
+done
 
-if [ -z "$LATEST_URL" ]; then
-    echo "Error: JMusicBot URL not Found"
-    exit 1
-fi
+curl -s http://ytgen:8080/token | jq -r '"ytpotoken=\"\(.potoken)\"\nytvisitordata=\"\(.visitor_data)\""' | tee -a config.txt
 
-echo "Downloading..."
-wget -N -O JMusicBot.jar "$LATEST_URL"
-echo "Download Complete! Setup potoken & visitor_data..."
-
-curl -s http://ytgen:8080/token | jq -r '"ytpotoken=\(.potoken)\nytvisitordata=\(.visitor_data)"' | tee -a config.txt
-
+# Run JMusicBot.jar
 java -Dnogui=true -jar JMusicBot.jar
-
-
-

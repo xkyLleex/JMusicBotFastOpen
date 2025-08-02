@@ -1,0 +1,5 @@
+owner=INPUT_YOUR_ID
+token=INPUT_YOUR_BOT_TOKEN
+prefix="@mention"
+status=ONLINE
+
